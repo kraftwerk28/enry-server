@@ -24,10 +24,24 @@ var availableLanguages []string = []string{
 }
 
 func handleIndex(w http.ResponseWriter, req *http.Request) {
+	languages := req.URL.Query()["languages"]
+	if len(languages) == 0 {
+		languages = availableLanguages
+	} else {
+		languages = strings.Split(languages[0], ",")
+	}
+	if len(languages) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Empty language list is not allowed"))
+		return
+	}
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
 	}
-	lang := enry.GetLanguagesByClassifier("", body, availableLanguages)
+	lang := enry.GetLanguagesByClassifier("", body, languages)
 	result := strings.ToLower(lang[0])
 	w.Write([]byte(result))
 }
