@@ -1,0 +1,5 @@
+version: '3'
+services:
+  enry-server:
+    build: ./
+    image: kraftwerk28/enry-server
